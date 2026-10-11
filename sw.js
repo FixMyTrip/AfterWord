@@ -1,0 +1,5 @@
+/* Cache only public static files; never cache discussions, generated audio, or API requests. */
+const CACHE='afterword-mvp-v07';const CORE=['./','./index.html','./styles.css','./app.js','./cloud-auth.js','./manifest.webmanifest','./favicon.svg','./icon-192.png','./icon-512.png'];
+self.addEventListener('install',event=>event.waitUntil(caches.open(CACHE).then(cache=>cache.addAll(CORE)).then(()=>self.skipWaiting())));
+self.addEventListener('activate',event=>event.waitUntil(Promise.all([caches.keys().then(keys=>Promise.all(keys.filter(k=>k!==CACHE&&k.startsWith('afterword-')).map(k=>caches.delete(k)))),self.clients.claim()])));
+self.addEventListener('fetch',event=>{const req=event.request;if(req.method!=='GET'||new URL(req.url).pathname.startsWith('/api/'))return;event.respondWith(fetch(req).then(res=>{if(res.ok&&new URL(req.url).origin===self.location.origin){const clone=res.clone();caches.open(CACHE).then(cache=>cache.put(req,clone));}return res}).catch(()=>caches.match(req).then(r=>r||Response.error())))});

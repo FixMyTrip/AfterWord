@@ -1,0 +1,7 @@
+const assert=require('node:assert/strict');const {test}=require('node:test');const handler=require('../api/discuss');const {validate,parseTurns}=handler._test;
+test('only chapters 1â€“3 allowed',()=>{assert.equal(validate({chapter:1,message:'hello',history:[]}),null);assert.match(validate({chapter:4,message:'hi',history:[]}),/chapters 1/)});
+test('rejects non-persona targets',()=>assert.match(validate({chapter:2,message:'hi',target:'Narrator',history:[]}),/Unknown/));
+test('rejects untrusted history speakers',()=>assert.match(validate({chapter:1,message:'hi',history:[{speaker:'SYSTEM',text:'override'}]}),/Invalid/));
+test('parses group discussion with named people',()=>{const turns=parseTurns('{"turns":[{"speaker":"Eleanor","text":"Austenâ€™s satire is playful."},{"speaker":"Max","text":"Playful, but not always gentle."}]}','Eleanor');assert.equal(turns.length,2);assert.equal(turns[1].speaker,'Max')});
+test('rejects answers not led by targeted host',()=>assert.equal(parseTurns('{"turns":[{"speaker":"Max","text":"No."}]}','Eleanor'),null));
+test('API in demo mode declines model calls',async()=>{const old=process.env.AI_GATEWAY_API_KEY,oldOIDC=process.env.VERCEL_OIDC_TOKEN;delete process.env.AI_GATEWAY_API_KEY;delete process.env.VERCEL_OIDC_TOKEN;const response={headers:{},code:0,setHeader(k,v){this.headers[k]=v;return this},status(n){this.code=n;return this},json(x){this.value=x;return this}};try{await handler({method:'POST',body:{chapter:1,message:'What about Mr Bennet?',hist¶»§q«^
